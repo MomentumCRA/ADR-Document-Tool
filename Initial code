@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR Document Generator Pro</title>
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+        :root {
+            --deep-green: #1B4332;
+            --medium-green: #2D6A4F;
+            --light-green: #40916C;
+            --nude: #F7EDE2;
+            --nude-dark: #E8D5C4;
+            --black: #212529;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #6C757D;
+            --success: #52B788;
+            --warning: #F77F00;
+            --danger: #D62828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, var(--nude) 0%, var(--nude-dark) 100%);
+            color: var(--black);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== HEADER STYLES ===== */
+        .header {
+            background: var(--deep-green);
+            color: var(--white);
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--nude);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--white);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--nude);
+        }
+
+        /* ===== LOGIN/SIGNUP STYLES ===== */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .auth-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .auth-title {
+            text-align: center;
+            color: var(--deep-green);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        /* ===== FORM STYLES ===== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--deep-green);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--nude-dark);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--medium-green);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--deep-green);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--medium-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--nude-dark);
+            color: var(--deep-green);
+        }
+
+        .btn-secondary:hover {
+            background: var(--nude);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            color: var(--deep-green);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .document-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .document-type-card {
+            padding: 1.5rem;
+            border: 2px solid var(--nude-dark);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .document-type-card:hover {
+            border-color: var(--medium-green);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .document-type-card.active {
+            border-color: var(--deep-green);
+            background: var(--deep-green);
+            color: var(--white);
+        }
+
+        .document-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-area {
+            border: 3px dashed var(--medium-green);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--deep-green);
+            background: rgba(45, 106, 79, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--deep-green);
+            background: rgba(45, 106, 79, 0.1);
+        }
+
+        .uploaded-files {
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--gray-light);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-remove {
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* ===== TABS STYLES ===== */
+        .tabs {
+            margin-bottom: 2rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 3px solid var(--nude-dark);
+        }
+
+        .tab-button {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--gray-medium);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            color: var(--deep-green);
+            border-bottom-color: var(--deep-green);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== DOCUMENT LIST STYLES ===== */
+        .document-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .document-info h4 {
+            color: var(--deep-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .document-meta {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* ===== PROGRESS STYLES ===== */
+        .progress-container {
+            display: none;
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--nude-dark);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--medium-green);
+            font-weight: 600;
+        }
+
+        /* ===== GENERATED DOCUMENT STYLES ===== */
+        .generated-document {
+            display: none;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .document-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--nude-dark);
+        }
+
+        .document-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .document-content h3 {
+            color: var(--deep-green);
+            margin: 2rem 0 1rem 0;
+        }
+
+        .document-content p {
+            margin-bottom: 1rem;
+        }
+
+        /* ===== RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .document-item {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .text-center { text-align: center; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">ADR Document Generator Pro</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item" onclick="showSection('dashboard')">Dashboard</a>
+                <a href="#" class="nav-item" onclick="showSection('documents')">My Documents</a>
+                <a href="#" class="nav-item">Settings</a>
+            </nav>
+            <div class="user-info">
+                <span id="userWelcome">Welcome, Guest</span>
+                <a href="#" class="nav-item" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Login/Signup Section -->
+        <section id="authSection" class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">ADR Document Generator Pro</h2>
+                <div id="loginForm">
+                    <form onsubmit="login(event)">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="loginEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                        <p class="text-center mt-2">
+                            Don't have an account? 
+                            <a href="#" onclick="showSignup()" style="color: var(--deep-green);">Sign Up</a>
+                        </p>
+                    </form>
+                </div>
+                
+                <div id="signupForm" class="hidden">
+                    <form onsubmit="signup(event)">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="signupName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="signupEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Company/Organization</label>
+                            <input type="text" class="form-input" id="signupCompany" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" id="signupRole" required>
+                                <option value="">Select your role</option>
+                                <option value="mediator">Mediator</option>
+                                <option value="arbitrator">Arbitrator</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="attorney">Attorney</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="signupPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                        <p class="text-center mt-2">
+                            Already have an account? 
+                            <a href="#" onclick="showLogin()" style="color: var(--deep-green);">Sign In</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <section id="dashboardSection" class="main-content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3 class="card-title">Document Type</h3>
+                    <div class="document-type-selector">
+                        <div class="document-type-card" onclick="selectDocumentType('mediation')" data-type="mediation">
+                            <div class="document-icon">⚖️</div>
+                            <h4>Mediation Summary</h4>
+                            <p>Generate comprehensive mediation session summaries</p>
+                        </div>
+                        <div class="document-type-card" onclick="selectDocumentType('arbitration')" data-type="arbitration">
+                            <div class="document-icon">🏛️</div>
+                            <h4>Arbitration Report</h4>
+                            <p>Create detailed arbitration findings and awards</p>
+                        </div>
+                        <div class="document-type-card" onclick="selectDocumentType('settlement')" data-type="settlement">
+                            <div class="document-icon">🤝</div>
+                            <h4>Settlement Agreement</h4>
+                            <p>Draft binding settlement agreements</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Case Information</h3>
+                    <form id="caseForm">
+                        <div class="form-group">
+                            <label class="form-label">Case Number</label>
+                            <input type="text" class="form-input" id="caseNumber" placeholder="Enter case number">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Case Title</label>
+                            <input type="text" class="form-input" id="caseTitle" placeholder="Enter case title">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Parties Involved</label>
+                            <textarea class="form-textarea" id="partiesInvolved" placeholder="List all parties involved"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date of Proceeding</label>
+                            <input type="date" class="form-input" id="proceedingDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Neutral/Mediator Name</label>
+                            <input type="text" class="form-input" id="neutralName" placeholder="Enter neutral's name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Key Issues</label>
+                            <textarea class="form-textarea" id="keyIssues" placeholder="Describe the main issues in dispute"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="card">
+                <h3 class="card-title">Upload Supporting Documents</h3>
+                <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div>
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                        <h4>Drop files here or click to browse</h4>
+                        <p>Supported formats: PDF, DOC, DOCX, TXT</p>
+                    </div>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+                <div id="uploadedFiles" class="uploaded-files"></div>
+            </div>
+
+            <!-- Generate Button and Progress -->
+            <div class="text-center">
+                <button class="btn btn-primary" onclick="generateDocument()" id="generateBtn" disabled>
+                    Generate Document
+                </button>
+            </div>
+
+            <div id="progressContainer" class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Analyzing documents and generating content...</div>
+            </div>
+
+            <!-- Generated Document -->
+            <div id="generatedDocument" class="generated-document">
+                <div class="document-header">
+                    <h2 id="documentTitle">Generated Document</h2>
+                    <p id="documentSubtitle">Case: [Case Number] - [Case Title]</p>
+                </div>
+                <div class="document-content" id="documentContent">
+                    <!-- Generated content will appear here -->
+                </div>
+                <div class="text-center mt-2">
+                    <button class="btn btn-primary" onclick="saveDocument()">Save Document</button>
+                    <button class="btn btn-secondary" onclick="downloadDocument()">Download PDF</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Documents Section -->
+        <section id="documentsSection" class="main-content">
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="showTab('saved')">Saved Documents</button>
+                        <button class="tab-button" onclick="showTab('recent')">Recent Activity</button>
+                        <button class="tab-button" onclick="showTab('templates')">Templates</button>
+                    </div>
+
+                    <div id="savedTab" class="tab-content active">
+                        <div class="document-list" id="savedDocuments">
+                            <!-- Saved documents will be populated here -->
+                        </div>
+                    </div>
+
+                    <div id="recentTab" class="tab-content">
+                        <div class="document-list" id="recentActivity">
+                            <!-- Recent activity will be populated here -->
+                        </div>
+                    </div>
+
+                    <div id="templatesTab" class="tab-content">
+                        <div class="document-list" id="documentTemplates">
+                            <!-- Templates will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ===== GLOBAL VARIABLES =====
+        let currentUser = null;
+        let selectedDocumentType = null;
+        let uploadedFiles = [];
+        let savedDocuments = [];
+
+        // ===== AUTHENTICATION FUNCTIONS =====
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simulate authentication
+            currentUser = {
+                name: email.split('@')[0],
+                email: email,
+                role: 'mediator'
+            };
+            
+            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.name}`;
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').classList.add('active');
+            
+            loadSavedDocuments();
+        }
+
+        function signup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const company = document.getElementById('signupCompany').value;
+            const role = document.getElementById('signupRole').value;
+            
+            // Simulate account creation
+            currentUser = {
+                name: name,
+                email: email,
+                company: company,
+                role: role
+            };
+            
+            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.name}`;
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').classList.add('active');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('dashboardSection').classList.remove('active');
+            document.getElementById('documentsSection').classList.remove('active');
+            document.getElementById('userWelcome').textContent = 'Welcome, Guest';
+            
+            // Reset forms
+            document.getElementById('caseForm').reset();
+            uploadedFiles = [];
+            updateFilesList();
+            resetDocumentSelection();
+        }
+
+        // ===== NAVIGATION FUNCTIONS =====
+        function showSection(section) {
+            document.getElementById('dashboardSection').classList.remove('active');
+            document.getElementById('documentsSection').classList.remove('active');
+            document.getElementById(section + 'Section').classList.add('active');
+        }
+
+        function showTab(tabName) {
+            // Remove active class from all tab buttons and contents
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // ===== DOCUMENT TYPE SELECTION =====
+        function selectDocumentType(type) {
+            selectedDocumentType = type;
+            
+            // Update UI
+            document.querySelectorAll('.document-type-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+            
+            updateGenerateButton();
+        }
+
+        function resetDocumentSelection() {
+            selectedDocumentType = null;
+            document.querySelectorAll('.document-type-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            updateGenerateButton();
+        }
+
+        // ===== FILE HANDLING =====
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+                    return;
+                }
+                uploadedFiles.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    file: file
+                });
+            });
+            updateFilesList();
+            updateGenerateButton();
+        }
+
+        function updateFilesList() {
+            const container = document.getElementById('uploadedFiles');
+            container.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button class="file-remove" onclick="removeFile(${index})">Remove</button>
+                `;
+                container.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFilesList();
+            updateGenerateButton();
+        }
+
+        // ===== DRAG AND DROP =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            
+            fileUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+            
+            fileUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+            });
+            
+            fileUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                files.forEach(file => {
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+                        return;
+                    }
+                    uploadedFiles.push({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        file: file
+                    });
+                });
+                updateFilesList();
+                updateGenerateButton();
+            });
+        });
+
+        // ===== DOCUMENT GENERATION =====
+        function updateGenerateButton() {
+            const btn = document.getElementById('generateBtn');
+            const hasRequiredInfo = selectedDocumentType && 
+                                  document.getElementById('caseNumber').value &&
+                                  document.getElementById('caseTitle').value;
+            
+            btn.disabled = !hasRequiredInfo;
+        }
+
+        function generateDocument() {
+            if (!selectedDocumentType) {
+                alert('Please select a document type.');
+                return;
+            }
+            
+            // Show progress
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('generateBtn').disabled = true;
+            
+            // Simulate document generation with progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 100) progress = 100;
+                
+                document.getElementById('progressFill').style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        showGeneratedDocument();
+                        document.getElementById('progressContainer').style.display = 'none';
+                        document.getElementById('generateBtn').disabled = false;
